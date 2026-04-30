@@ -1,84 +1,87 @@
 "use client";
 
 import { useState } from "react";
-import {
-  useTournament,
-  PlayerWithCharacters,
-} from "../../context/TournamentContext";
-import StepHeader from "../ui/StepHeader";
-import Pagination from "../ui/Pagination";
-import PrimaryButton from "../ui/buttons/PrimaryButton";
-import SecondaryButton from "../ui/buttons/SecondaryButton";
+import { useTournament } from "@/app/context/TournamentContext";
+import StepHeader from "@/app/components/ui/StepHeader";
+import Pagination from "@/app/components/ui/Pagination";
+import PrimaryButton from "@/app/components/ui/buttons/PrimaryButton";
+import SecondaryButton from "@/app/components/ui/buttons/SecondaryButton";
+import CharacterNamesList from "./CharacterNamesList";
+import { charactersPerPlayer } from "@/app/lib/tournamentRules";
+import { buildPlayersWithCharacters } from "@/app/lib/tournamentBuild";
+import { PlayerCount } from "@/app/types/tournament";
 
-function pad(n: number): string {
-  return String(n).padStart(3, "0");
+function createEmptyNames(playerCount: number, namesPerPlayer: number): string[][] {
+  return Array.from({ length: playerCount }, () =>
+    Array<string>(namesPerPlayer).fill(""),
+  );
 }
 
-const inputBase =
-  "w-full h-12 bg-[#1e2235] border border-[#2a3050] rounded-lg px-4 text-white text-[15px] outline-none transition-colors placeholder:text-[#4a5568] hover:border-[#00e5a0] focus:border-[#00e5a0] focus:ring-2 focus:ring-[#00e5a0]/20";
+function areAllNamesFilled(names: string[]): boolean {
+  return names.every((name) => name.trim().length > 0);
+}
 
 export default function Step4() {
   const { goBack, goNext, data, updateData } = useTournament();
   const { players, playerCount, draws } = data;
-  const charactersPerPlayer = 16 / playerCount;
+  const namesPerPlayer = charactersPerPlayer(playerCount as PlayerCount);
 
   const [characterNames, setCharacterNames] = useState<string[][]>(() =>
-    players.map(() => Array(charactersPerPlayer).fill("")),
+    createEmptyNames(playerCount, namesPerPlayer),
   );
-
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 
   const currentPlayer = players[currentPlayerIndex];
-  const currentDraws = draws[currentPlayerIndex] ?? [];
+  const currentDraws = draws[currentPlayerIndex];
   const currentNames = characterNames[currentPlayerIndex];
 
-  const isCurrentPlayerDone = currentNames.every((n) => n.trim().length > 0);
   const isLastPlayer = currentPlayerIndex === playerCount - 1;
-  const allDone = characterNames.every((names) =>
-    names.every((n) => n.trim().length > 0),
-  );
+  const isCurrentPlayerDone = areAllNamesFilled(currentNames);
+  const allPlayersDone = characterNames.every(areAllNamesFilled);
+  const canAdvance = isLastPlayer ? allPlayersDone : isCurrentPlayerDone;
 
-  const updateName = (charIndex: number, value: string) => {
+  const updateCharacterName = (charIndex: number, name: string) => {
     setCharacterNames((prev) =>
-      prev.map((names, pi) =>
-        pi === currentPlayerIndex
-          ? names.map((n, ci) => (ci === charIndex ? value : n))
+      prev.map((names, playerIndex) =>
+        playerIndex === currentPlayerIndex
+          ? names.map((n, i) => (i === charIndex ? name : n))
           : names,
       ),
     );
   };
 
-  const handleNext = () => {
-    if (isLastPlayer) {
-      const playersWithCharacters: PlayerWithCharacters[] = players.map(
-        (p, pi) => ({
-          ...p,
-          characters: characterNames[pi].map((name, ci) => ({
-            position: draws[pi][ci],
-            name,
-          })),
-        }),
-      );
-      updateData({ playersWithCharacters });
-      goNext();
-    } else {
-      setCurrentPlayerIndex((i) => i + 1);
-    }
-  };
+  const goToPrevPlayer = () =>
+    setCurrentPlayerIndex((i) => Math.max(i - 1, 0));
+  const goToNextPlayer = () =>
+    setCurrentPlayerIndex((i) => Math.min(i + 1, playerCount - 1));
 
-  const handlePrev = () => {
+  const handleBack = () => {
     if (currentPlayerIndex === 0) {
       goBack();
     } else {
-      setCurrentPlayerIndex((i) => i - 1);
+      goToPrevPlayer();
     }
   };
 
-  const canAdvance = isLastPlayer ? allDone : isCurrentPlayerDone;
+  const handleAdvance = () => {
+    if (!canAdvance) return;
+
+    if (isLastPlayer) {
+      updateData({
+        playersWithCharacters: buildPlayersWithCharacters(
+          players,
+          draws,
+          characterNames,
+        ),
+      });
+      goNext();
+    } else {
+      goToNextPlayer();
+    }
+  };
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Header + Pagination */}
       <div className="flex justify-between items-start gap-4">
         <StepHeader
           eyebrow="NOMES DOS PERSONAGENS"
@@ -88,40 +91,22 @@ export default function Step4() {
         <Pagination
           current={currentPlayerIndex}
           total={playerCount}
-          onPrev={() =>
-            currentPlayerIndex > 0 && setCurrentPlayerIndex((i) => i - 1)
-          }
-          onNext={() =>
-            currentPlayerIndex < playerCount - 1 &&
-            setCurrentPlayerIndex((i) => i + 1)
-          }
+          onPrev={goToPrevPlayer}
+          onNext={goToNextPlayer}
         />
       </div>
 
-      {/* Linhas de inputs */}
-      <div className="flex flex-col gap-2.5">
-        {currentDraws.map((position, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div className="bg-[#1e2235] border border-[#00e5a0]/30 text-[#00e5a0] font-extrabold font-mono text-[13px] rounded-lg px-3 py-2 shrink-0 tracking-wider">
-              {pad(position)}
-            </div>
-            <input
-              type="text"
-              placeholder="Nome do personagem"
-              value={currentNames[i]}
-              onChange={(e) => updateName(i, e.target.value)}
-              className={inputBase}
-            />
-          </div>
-        ))}
-      </div>
+      <CharacterNamesList
+        positions={currentDraws}
+        names={currentNames}
+        onChangeName={updateCharacterName}
+      />
 
-      {/* Actions */}
       <div className="flex gap-3">
-        <SecondaryButton onClick={handlePrev}>← Voltar</SecondaryButton>
+        <SecondaryButton onClick={handleBack}>← Voltar</SecondaryButton>
         <PrimaryButton
           disabled={!canAdvance}
-          onClick={handleNext}
+          onClick={handleAdvance}
           className="flex-1"
         >
           {isLastPlayer ? "Gerar chaveamento →" : "Próximo jogador →"}

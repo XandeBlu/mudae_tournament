@@ -6,6 +6,7 @@ import StepHeader from "@/app/components/ui/StepHeader";
 import PrimaryButton from "@/app/components/ui/buttons/PrimaryButton";
 import PlayerCountSelect from "./PlayerCountSelect";
 import { PlayerCount } from "@/app/types/tournament";
+import { labelBase } from "@/app/globalstyles/baseStyles";
 
 export default function Step1() {
   const { goNext, updateData } = useTournament();
@@ -26,7 +27,7 @@ export default function Step1() {
       />
 
       <div>
-        <label className="block text-[#8892aa] text-[11px] font-bold tracking-widest mb-2">
+        <label className={`block ${labelBase} mb-2`}>
           QUANTIDADE DE JOGADORES
         </label>
         <PlayerCountSelect value={playerCount} onChange={setPlayerCount} />

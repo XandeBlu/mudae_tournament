@@ -1,8 +1,8 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
 
-interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+type PrimaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-}
+};
 
 export default function PrimaryButton({
   children,
@@ -19,7 +19,6 @@ export default function PrimaryButton({
         disabled:bg-[#2a3050] disabled:text-[#4a5568] disabled:cursor-not-allowed
         ${className}
       `}
-      style={{ height: 52 }}
     >
       {children}
     </button>

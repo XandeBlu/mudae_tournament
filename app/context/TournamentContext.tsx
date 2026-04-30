@@ -2,34 +2,34 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-export interface Player {
+export type Player = {
   name: string;
   collectionSize: number;
-}
+};
 
-export interface Character {
+export type Character = {
   position: number;
   name: string;
-}
+};
 
-export interface PlayerWithCharacters extends Player {
+export type PlayerWithCharacters = Player & {
   characters: Character[];
-}
+};
 
-export interface TournamentData {
+export type TournamentData = {
   playerCount: number;
   players: Player[];
   draws: number[][]; // draws[playerIndex] = [pos1, pos2, ...]
   playersWithCharacters: PlayerWithCharacters[];
-}
+};
 
-interface StepContextType {
+type StepContextType = {
   currentStep: number;
   goNext: () => void;
   goBack: () => void;
   data: TournamentData;
   updateData: (partial: Partial<TournamentData>) => void;
-}
+};
 
 export const StepContext = createContext<StepContextType>(
   {} as StepContextType,
@@ -37,10 +37,10 @@ export const StepContext = createContext<StepContextType>(
 
 export const useTournament = () => useContext(StepContext);
 
-interface TournamentProviderProps {
+type TournamentProviderProps = {
   children: ReactNode;
   totalSteps: number;
-}
+};
 
 export function TournamentProvider({
   children,

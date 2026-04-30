@@ -6,6 +6,7 @@ import {
   PlayerCountOption as PlayerCountOptionType,
 } from "@/app/types/tournament";
 import { useClickOutside } from "@/app/hooks/useClickOutside";
+import { inputBase } from "@/app/globalstyles/baseStyles";
 
 const PLAYER_OPTIONS: PlayerCountOptionType[] = [
   { value: 2, label: "2 jogadores — 8 personagens cada" },
@@ -40,7 +41,7 @@ export default function PlayerCountSelect({
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
-        className="w-full h-12 bg-[#1e2235] border border-[#2a3050] rounded-lg px-4 pr-10 text-white text-[15px] cursor-pointer outline-none hover:border-[#00e5a0] focus:border-[#00e5a0] focus:ring-2 focus:ring-[#00e5a0]/20 transition-colors text-left tracking-tight"
+        className={`${inputBase} transition-colors text-left tracking-tight`}
       >
         {selected ? (
           selected.label

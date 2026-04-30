@@ -3,12 +3,12 @@
 import { Button } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
-interface PaginationProps {
+type PaginationProps = {
   current: number; // 0-indexed
   total: number;
   onPrev: () => void;
   onNext: () => void;
-}
+};
 
 export default function Pagination({
   current,

@@ -6,6 +6,8 @@ import StepHeader from "@/app/components/ui/StepHeader";
 import PrimaryButton from "@/app/components/ui/buttons/PrimaryButton";
 import SecondaryButton from "@/app/components/ui/buttons/SecondaryButton";
 import PlayerInputRow from "./PlayerInputRow";
+import { charactersPerPlayer } from "@/app/lib/tournamentRules";
+import { PlayerCount } from "@/app/types/tournament";
 
 const DEFAULT_COLLECTION_SIZE = 0;
 
@@ -16,12 +18,16 @@ function createEmptyPlayers(count: number): Player[] {
   }));
 }
 
-function isPlayerValid(player: Player): boolean {
-  return player.name.trim().length > 0 && player.collectionSize > 0;
+function isPlayerValid(player: Player, minCollectionSize: number): boolean {
+  return (
+    player.name.trim().length > 0 && player.collectionSize >= minCollectionSize
+  );
 }
 
 export default function Step2() {
   const { goNext, goBack, data, updateData } = useTournament();
+  const minCollectionSize = charactersPerPlayer(data.playerCount as PlayerCount);
+
   const [players, setPlayers] = useState<Player[]>(() =>
     createEmptyPlayers(data.playerCount),
   );
@@ -30,7 +36,7 @@ export default function Step2() {
     setPlayers((prev) => prev.map((p, i) => (i === index ? updated : p)));
   };
 
-  const isValid = players.every(isPlayerValid);
+  const isValid = players.every((p) => isPlayerValid(p, minCollectionSize));
 
   const handleConfirm = () => {
     if (!isValid) return;
@@ -43,7 +49,7 @@ export default function Step2() {
       <StepHeader
         eyebrow="ETAPA 2 DE 4"
         title="Dados dos jogadores"
-        subtitle="Nome e tamanho da coleção de cada participante."
+        subtitle={`Cada jogador precisa de uma coleção com no mínimo ${minCollectionSize} personagem${minCollectionSize > 1 ? "s" : ""}.`}
       />
 
       <div className="flex flex-col gap-4">
@@ -52,6 +58,7 @@ export default function Step2() {
             key={index}
             index={index}
             player={player}
+            minCollectionSize={minCollectionSize}
             onChange={(updated) => updatePlayer(index, updated)}
           />
         ))}

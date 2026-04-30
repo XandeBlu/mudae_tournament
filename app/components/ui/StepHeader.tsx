@@ -1,8 +1,8 @@
-interface StepHeaderProps {
+type StepHeaderProps = {
   eyebrow: string;
   title: string;
   subtitle: string;
-}
+};
 
 export default function StepHeader({
   eyebrow,
