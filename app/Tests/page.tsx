@@ -1,11 +1,11 @@
-import Bracket from "../components/ui/BracketPage/Bracket";
-import CharacterCard from "../components/ui/BracketPage/CharactersCard";
-import Match from "../components/ui/BracketPage/Match";
+import BattleScreen from "../components/ui/BattleScreen/BattleScreen";
+import CharacterIMG from "../components/ui/BattleScreen/CharacterIMG";
 
 export default function Tests() {
   return (
     <div className="p-2">
-      <Bracket></Bracket>
+      <BattleScreen />
+      <CharacterIMG imageSrc="/images/Sukkuna.png"></CharacterIMG>
     </div>
   );
 }
