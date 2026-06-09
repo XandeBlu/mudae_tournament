@@ -1,24 +1,5 @@
-import Match from "./Match";
-import { Character } from "./CharactersCard";
-
-const players: Character[] = [
-  { characterName: "Naruto", playerName: "P1" },
-  { characterName: "Sasuke", playerName: "P2" },
-  { characterName: "Goku", playerName: "P3" },
-  { characterName: "Vegeta", playerName: "P4" },
-  { characterName: "Luffy", playerName: "P5" },
-  { characterName: "Zoro", playerName: "P6" },
-  { characterName: "Ichigo", playerName: "P7" },
-  { characterName: "Aizen", playerName: "P8" },
-  { characterName: "Tanjiro", playerName: "P9" },
-  { characterName: "Rengoku", playerName: "P10" },
-  { characterName: "Gojo", playerName: "P11" },
-  { characterName: "Sukuna", playerName: "P12" },
-  { characterName: "Edward", playerName: "P13" },
-  { characterName: "Alphonse", playerName: "P14" },
-  { characterName: "Light", playerName: "P15" },
-  { characterName: "L", playerName: "P16" },
-];
+import Match from "../components/ui/BracketPage/Match";
+import { players } from "@/app/context/battleThemes";
 
 export default function Bracket() {
   return (
@@ -34,6 +15,8 @@ export default function Bracket() {
         <Match player1={players[12]} player2={players[13]} />
         <Match player1={players[14]} player2={players[15]} />
       </div>
+
+      {/* Falta iniciar uma forma de passar um vencedor para as outras rodadas, olhar chat gpt */}
 
       {/* QUARTAS */}
       <div className="flex flex-col gap-24 justify-center">
