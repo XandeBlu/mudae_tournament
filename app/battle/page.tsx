@@ -1,5 +1,4 @@
 import BattleScreen from "../components/ui/BattleScreen/BattleScreen";
-import CharacterIMG from "../components/ui/BattleScreen/CharacterIMG";
 
 export default function Tests() {
   return (
