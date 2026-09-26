@@ -17,9 +17,10 @@ export type PlayerWithCharacters = Player & {
 };
 
 export type TournamentData = {
+  isMudae: boolean;
   playerCount: number;
   players: Player[];
-  draws: number[][]; // draws[playerIndex] = [pos1, pos2, ...]
+  draws: number[][];
   playersWithCharacters: PlayerWithCharacters[];
 };
 
@@ -27,6 +28,7 @@ type StepContextType = {
   currentStep: number;
   goNext: () => void;
   goBack: () => void;
+  goToStep: (step: number) => void;
   data: TournamentData;
   updateData: (partial: Partial<TournamentData>) => void;
 };
@@ -48,6 +50,7 @@ export function TournamentProvider({
 }: TournamentProviderProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<TournamentData>({
+    isMudae: true,
     playerCount: 2,
     players: [],
     draws: [],
@@ -55,13 +58,24 @@ export function TournamentProvider({
   });
 
   const goNext = () => setCurrentStep((s) => Math.min(s + 1, totalSteps - 1));
+
   const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
+
+  const goToStep = (step: number) =>
+    setCurrentStep(() => Math.min(Math.max(step, 0), totalSteps - 1));
   const updateData = (partial: Partial<TournamentData>) =>
     setData((d) => ({ ...d, ...partial }));
 
   return (
     <StepContext.Provider
-      value={{ currentStep, goNext, goBack, data, updateData }}
+      value={{
+        currentStep,
+        goNext,
+        goBack,
+        data,
+        updateData,
+        goToStep,
+      }}
     >
       {children}
     </StepContext.Provider>

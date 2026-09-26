@@ -25,8 +25,11 @@ function isPlayerValid(player: Player, minCollectionSize: number): boolean {
 }
 
 export default function Step2() {
-  const { goNext, goBack, data, updateData } = useTournament();
-  const minCollectionSize = charactersPerPlayer(data.playerCount as PlayerCount);
+  const { goNext, goBack, goToStep, data, updateData } = useTournament();
+
+  const minCollectionSize = charactersPerPlayer(
+    data.playerCount as PlayerCount,
+  );
 
   const [players, setPlayers] = useState<Player[]>(() =>
     createEmptyPlayers(data.playerCount),
@@ -36,12 +39,32 @@ export default function Step2() {
     setPlayers((prev) => prev.map((p, i) => (i === index ? updated : p)));
   };
 
-  const isValid = players.every((p) => isPlayerValid(p, minCollectionSize));
+  // ==========================================
+  // VALIDAÇÃO
+  // ==========================================
+
+  const isValid = data.isMudae
+    ? players.every((p) => isPlayerValid(p, minCollectionSize))
+    : players.every((p) => p.name.trim().length > 0);
+
+  // ==========================================
+  // CONFIRMAR
+  // ==========================================
 
   const handleConfirm = () => {
     if (!isValid) return;
-    updateData({ players });
-    goNext();
+
+    updateData({
+      players,
+    });
+
+    if (data.isMudae) {
+      // Mudae → Step 3
+      goNext();
+    } else {
+      // Normal → pula Step 3 → Step 4
+      goToStep(3);
+    }
   };
 
   return (
@@ -49,7 +72,13 @@ export default function Step2() {
       <StepHeader
         eyebrow="ETAPA 2 DE 4"
         title="Dados dos jogadores"
-        subtitle={`Cada jogador precisa de uma coleção com no mínimo ${minCollectionSize} personagem${minCollectionSize > 1 ? "s" : ""}.`}
+        subtitle={
+          data.isMudae
+            ? `Cada jogador precisa de uma coleção com no mínimo ${minCollectionSize} personagem${
+                minCollectionSize > 1 ? "s" : ""
+              }.`
+            : "Informe o nome de cada jogador."
+        }
       />
 
       <div className="flex flex-col gap-4">
@@ -60,12 +89,14 @@ export default function Step2() {
             player={player}
             minCollectionSize={minCollectionSize}
             onChange={(updated) => updatePlayer(index, updated)}
+            isMudae={data.isMudae}
           />
         ))}
       </div>
 
       <div className="flex gap-3">
         <SecondaryButton onClick={goBack}>← Voltar</SecondaryButton>
+
         <PrimaryButton
           disabled={!isValid}
           onClick={handleConfirm}

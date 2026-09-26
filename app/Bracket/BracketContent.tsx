@@ -9,6 +9,8 @@ export default function BracketContent() {
   const { getWinner, results, characters } = useBracket();
 
   const players = characters;
+  console.log("PERSONAGENS DO BRACKET:", characters);
+  console.log("QUANTIDADE:", characters.length);
   const winner = (id: string) =>
     getWinner(id) ?? { id: `pendente-${id}`, characterName: "Aguardando..." };
 

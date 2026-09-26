@@ -3,7 +3,7 @@
 import CharacterNameRow from "./CharacterNameRow";
 
 type CharacterNamesListProps = {
-  positions: number[];
+  positions?: number[];
   names: string[];
   onChangeName: (charIndex: number, name: string) => void;
 };
@@ -15,11 +15,11 @@ export default function CharacterNamesList({
 }: CharacterNamesListProps) {
   return (
     <div className="flex flex-col gap-2.5">
-      {positions.map((position, charIndex) => (
+      {names.map((name, charIndex) => (
         <CharacterNameRow
           key={charIndex}
-          position={position}
-          name={names[charIndex]}
+          position={positions?.[charIndex]}
+          name={name}
           onChange={(name) => onChangeName(charIndex, name)}
         />
       ))}
