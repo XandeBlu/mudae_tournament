@@ -5,7 +5,7 @@ import SecondaryButton from "../buttons/SecondaryButton";
 import PrimaryButton from "../buttons/PrimaryButton";
 import TertiaryButton from "../buttons/TertiaryButton";
 import CharacterIMG from "./CharacterIMG";
-import { themes, getCharacterById } from "@/app/context/battleThemes";
+import { themes } from "@/app/context/battleThemes";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useBracket } from "@/app/context/BattleScreenContext";
 
@@ -23,11 +23,11 @@ export default function BattleScreen() {
   const p1Id = params.get("p1")!;
   const p2Id = params.get("p2")!;
 
+  const { setWinner, characters } = useBracket();
   // busca os dados completos a partir dos ids da URL
-  const player1 = getCharacterById(p1Id);
-  const player2 = getCharacterById(p2Id);
+  const player1 = characters.find((character) => character.id === p1Id);
+  const player2 = characters.find((character) => character.id === p2Id);
 
-  const { setWinner } = useBracket();
   const router = useRouter();
 
   function handleDrawTheme() {

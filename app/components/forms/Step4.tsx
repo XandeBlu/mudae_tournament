@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTournament } from "@/app/context/TournamentContext";
 import StepHeader from "@/app/components/ui/StepHeader";
 import Pagination from "@/app/components/ui/Pagination";
@@ -11,7 +12,10 @@ import { charactersPerPlayer } from "@/app/lib/tournamentRules";
 import { buildPlayersWithCharacters } from "@/app/lib/tournamentBuild";
 import { PlayerCount } from "@/app/types/tournament";
 
-function createEmptyNames(playerCount: number, namesPerPlayer: number): string[][] {
+function createEmptyNames(
+  playerCount: number,
+  namesPerPlayer: number,
+): string[][] {
   return Array.from({ length: playerCount }, () =>
     Array<string>(namesPerPlayer).fill(""),
   );
@@ -22,6 +26,7 @@ function areAllNamesFilled(names: string[]): boolean {
 }
 
 export default function Step4() {
+  const router = useRouter();
   const { goBack, goNext, data, updateData } = useTournament();
   const { players, playerCount, draws } = data;
   const namesPerPlayer = charactersPerPlayer(playerCount as PlayerCount);
@@ -50,8 +55,7 @@ export default function Step4() {
     );
   };
 
-  const goToPrevPlayer = () =>
-    setCurrentPlayerIndex((i) => Math.max(i - 1, 0));
+  const goToPrevPlayer = () => setCurrentPlayerIndex((i) => Math.max(i - 1, 0));
   const goToNextPlayer = () =>
     setCurrentPlayerIndex((i) => Math.min(i + 1, playerCount - 1));
 
@@ -74,7 +78,8 @@ export default function Step4() {
           characterNames,
         ),
       });
-      goNext();
+
+      router.push("/bracket");
     } else {
       goToNextPlayer();
     }

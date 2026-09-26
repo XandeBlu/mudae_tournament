@@ -1,14 +1,14 @@
 "use client";
 
-import { players, Round } from "@/app/context/battleThemes";
+import { Round } from "@/app/context/battleThemes";
 import { useBracket } from "@/app/context/BattleScreenContext";
 import Match from "../components/ui/BracketPage/Match";
-import CharacterCard from "../components/ui/BracketPage/CharactersCard";
 import CharacterIMG from "../components/ui/BattleScreen/CharacterIMG";
 
 export default function BracketContent() {
-  const { getWinner, results } = useBracket();
+  const { getWinner, results, characters } = useBracket();
 
+  const players = characters;
   const winner = (id: string) =>
     getWinner(id) ?? { id: `pendente-${id}`, characterName: "Aguardando..." };
 
