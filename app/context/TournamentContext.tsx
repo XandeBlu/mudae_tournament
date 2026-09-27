@@ -7,13 +7,14 @@ export type Player = {
   collectionSize: number;
 };
 
-export type Character = {
+export type Competitor = {
   position: number;
   name: string;
+  image?: string;
 };
 
-export type PlayerWithCharacters = Player & {
-  characters: Character[];
+export type PlayerWithCompetitors = Player & {
+  competitors: Competitor[];
 };
 
 export type TournamentData = {
@@ -21,7 +22,7 @@ export type TournamentData = {
   playerCount: number;
   players: Player[];
   draws: number[][];
-  playersWithCharacters: PlayerWithCharacters[];
+  playersWithCompetitors: PlayerWithCompetitors[];
 };
 
 type StepContextType = {
@@ -54,7 +55,7 @@ export function TournamentProvider({
     playerCount: 2,
     players: [],
     draws: [],
-    playersWithCharacters: [],
+    playersWithCompetitors: [],
   });
 
   const goNext = () => setCurrentStep((s) => Math.min(s + 1, totalSteps - 1));

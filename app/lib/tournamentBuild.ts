@@ -1,22 +1,23 @@
-import { Player, PlayerWithCharacters } from "@/app/context/TournamentContext";
+import { Player, PlayerWithCompetitors } from "@/app/context/TournamentContext";
 
-/**
- * Combina a lista de jogadores, seus números sorteados e os nomes
- * digitados num único array de PlayerWithCharacters pronto pro chaveamento.
- *
- * Pré-condição: os três arrays têm o mesmo comprimento, e cada par
- * draws[i] / characterNames[i] também tem comprimento igual.
- */
-export function buildPlayersWithCharacters(
+export type CompetitorInput = {
+  name: string;
+  image?: string;
+};
+
+export function buildPlayersWithCompetitors(
   players: Player[],
   draws: number[][],
-  characterNames: string[][],
-): PlayerWithCharacters[] {
+  competitors: CompetitorInput[][],
+): PlayerWithCompetitors[] {
   return players.map((player, playerIndex) => ({
     ...player,
-    characters: characterNames[playerIndex].map((name, charIndex) => ({
-      position: draws[playerIndex][charIndex],
-      name: name.trim(),
-    })),
+    competitors: competitors[playerIndex].map(
+      (competitor, competitorIndex) => ({
+        position: draws[playerIndex][competitorIndex],
+        name: competitor.name.trim(),
+        image: competitor.image,
+      }),
+    ),
   }));
 }

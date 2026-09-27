@@ -1,14 +1,20 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState } from "react";
-import { Character } from "../components/ui/BracketPage/CharactersCard";
 import { useTournament } from "./TournamentContext";
+
+export type BracketCompetitor = {
+  id: string;
+  name: string;
+  playerName: string;
+  image?: string;
+};
 
 type BracketContextType = {
   results: Record<string, string>;
   setWinner: (matchId: string, winnerId: string) => void;
-  getWinner: (matchId: string) => Character | null;
-  characters: Character[];
+  getWinner: (matchId: string) => BracketCompetitor | null;
+  characters: BracketCompetitor[];
 };
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -30,18 +36,18 @@ export function BracketProvider({ children }: { children: React.ReactNode }) {
 
   const [results, setResults] = useState<Record<string, string>>({});
 
-  const characters = useMemo<Character[]>(() => {
-    const characters = data.playersWithCharacters.flatMap((player) =>
-      player.characters.map((character) => ({
+  const competitors = useMemo<BracketCompetitor[]>(() => {
+    const competitors = data.playersWithCompetitors.flatMap((player) =>
+      player.competitors.map((competitor) => ({
         id: crypto.randomUUID(),
-        characterName: character.name,
+        name: competitor.name,
         playerName: player.name,
-        image: "/images/placeholder.png",
+        image: competitor.image,
       })),
     );
 
-    return shuffleArray(characters);
-  }, [data.playersWithCharacters]);
+    return shuffleArray(competitors);
+  }, [data.playersWithCompetitors]);
 
   function setWinner(matchId: string, winnerId: string) {
     setResults((prev) => ({
@@ -50,12 +56,12 @@ export function BracketProvider({ children }: { children: React.ReactNode }) {
     }));
   }
 
-  function getWinner(matchId: string): Character | null {
+  function getWinner(matchId: string): BracketCompetitor | null {
     const winnerId = results[matchId];
 
     if (!winnerId) return null;
 
-    return characters.find((character) => character.id === winnerId) ?? null;
+    return competitors.find((competitor) => competitor.id === winnerId) ?? null;
   }
 
   return (
@@ -64,7 +70,7 @@ export function BracketProvider({ children }: { children: React.ReactNode }) {
         results,
         setWinner,
         getWinner,
-        characters,
+        characters: competitors,
       }}
     >
       {children}

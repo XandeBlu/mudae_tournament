@@ -9,20 +9,26 @@ import PrimaryButton from "@/app/components/ui/buttons/PrimaryButton";
 import SecondaryButton from "@/app/components/ui/buttons/SecondaryButton";
 import CharacterNamesList from "./CharacterNamesList";
 import { charactersPerPlayer } from "@/app/lib/tournamentRules";
-import { buildPlayersWithCharacters } from "@/app/lib/tournamentBuild";
+import {
+  buildPlayersWithCompetitors,
+  CompetitorInput,
+} from "@/app/lib/tournamentBuild";
 import { PlayerCount } from "@/app/types/tournament";
 
-function createEmptyNames(
+function createEmptyCompetitors(
   playerCount: number,
-  namesPerPlayer: number,
-): string[][] {
+  competitorsPerPlayer: number,
+): CompetitorInput[][] {
   return Array.from({ length: playerCount }, () =>
-    Array<string>(namesPerPlayer).fill(""),
+    Array.from({ length: competitorsPerPlayer }, () => ({
+      name: "",
+      image: undefined,
+    })),
   );
 }
 
-function areAllNamesFilled(names: string[]): boolean {
-  return names.every((name) => name.trim().length > 0);
+function areAllNamesFilled(competitors: CompetitorInput[]): boolean {
+  return competitors.every((competitor) => competitor.name.trim().length > 0);
 }
 
 export default function Step4() {
@@ -34,34 +40,58 @@ export default function Step4() {
 
   const namesPerPlayer = charactersPerPlayer(playerCount as PlayerCount);
 
-  const [characterNames, setCharacterNames] = useState<string[][]>(() =>
-    createEmptyNames(playerCount, namesPerPlayer),
+  const [competitors, setCompetitors] = useState<CompetitorInput[][]>(() =>
+    createEmptyCompetitors(playerCount, namesPerPlayer),
   );
 
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 
   const currentPlayer = players[currentPlayerIndex];
   const currentDraws = draws[currentPlayerIndex];
-  const currentNames = characterNames[currentPlayerIndex];
+  const currentCompetitors = competitors[currentPlayerIndex];
 
-  if (!currentPlayer || !currentNames) {
+  if (!currentPlayer || !currentCompetitors) {
     return null;
   }
 
   const isLastPlayer = currentPlayerIndex === playerCount - 1;
 
-  const isCurrentPlayerDone = areAllNamesFilled(currentNames);
+  const isCurrentPlayerDone = areAllNamesFilled(currentCompetitors);
 
-  const allPlayersDone = characterNames.every(areAllNamesFilled);
+  const allPlayersDone = competitors.every(areAllNamesFilled);
 
   const canAdvance = isLastPlayer ? allPlayersDone : isCurrentPlayerDone;
 
-  const updateCharacterName = (charIndex: number, name: string) => {
-    setCharacterNames((prev) =>
-      prev.map((names, playerIndex) =>
+  const updateCompetitorName = (competitorIndex: number, name: string) => {
+    setCompetitors((prev) =>
+      prev.map((playerCompetitors, playerIndex) =>
         playerIndex === currentPlayerIndex
-          ? names.map((n, i) => (i === charIndex ? name : n))
-          : names,
+          ? playerCompetitors.map((competitor, index) =>
+              index === competitorIndex
+                ? {
+                    ...competitor,
+                    name,
+                  }
+                : competitor,
+            )
+          : playerCompetitors,
+      ),
+    );
+  };
+
+  const updateCompetitorImage = (competitorIndex: number, image?: string) => {
+    setCompetitors((prev) =>
+      prev.map((playerCompetitors, playerIndex) =>
+        playerIndex === currentPlayerIndex
+          ? playerCompetitors.map((competitor, index) =>
+              index === competitorIndex
+                ? {
+                    ...competitor,
+                    image,
+                  }
+                : competitor,
+            )
+          : playerCompetitors,
       ),
     );
   };
@@ -77,10 +107,8 @@ export default function Step4() {
   const handleBack = () => {
     if (currentPlayerIndex === 0) {
       if (isMudae) {
-        // Mudae: Step4 → Step3
         goToStep(2);
       } else {
-        // Normal: Step4 → Step2
         goToStep(1);
       }
 
@@ -100,23 +128,26 @@ export default function Step4() {
 
     if (isMudae) {
       updateData({
-        playersWithCharacters: buildPlayersWithCharacters(
+        playersWithCompetitors: buildPlayersWithCompetitors(
           players,
           draws,
-          characterNames,
+          competitors,
         ),
       });
     } else {
-      const playersWithCharacters = players.map((player, playerIndex) => ({
+      const playersWithCompetitors = players.map((player, playerIndex) => ({
         ...player,
-        characters: characterNames[playerIndex].map((name, charIndex) => ({
-          position: charIndex + 1,
-          name: name.trim(),
-        })),
+        competitors: competitors[playerIndex].map(
+          (competitor, competitorIndex) => ({
+            position: competitorIndex + 1,
+            name: competitor.name.trim(),
+            image: competitor.image,
+          }),
+        ),
       }));
 
       updateData({
-        playersWithCharacters,
+        playersWithCompetitors,
       });
     }
 
@@ -127,12 +158,12 @@ export default function Step4() {
     <div className="flex flex-col gap-5">
       <div className="flex justify-between items-start gap-4">
         <StepHeader
-          eyebrow="NOMES DOS PERSONAGENS"
+          eyebrow="NOMES DOS COMPETIDORES"
           title={currentPlayer.name}
           subtitle={
             isMudae
               ? "Informe os personagens sorteados"
-              : "Informe os personagens escolhidos"
+              : "Informe os competidores escolhidos"
           }
         />
 
@@ -146,8 +177,10 @@ export default function Step4() {
 
       <CharacterNamesList
         positions={isMudae ? currentDraws : undefined}
-        names={currentNames}
-        onChangeName={updateCharacterName}
+        names={currentCompetitors.map((competitor) => competitor.name)}
+        images={currentCompetitors.map((competitor) => competitor.image)}
+        onChangeName={updateCompetitorName}
+        onChangeImage={updateCompetitorImage}
       />
 
       <div className="flex gap-3">
